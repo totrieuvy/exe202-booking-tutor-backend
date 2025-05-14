@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Verify Your Account</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px">
+    <div style="text-align: center; padding: 20px; background-color: #f8f8f8; border-radius: 8px">
+      <h1 style="color: #333">Welcome to Booking Tutor, {{fullName}}!</h1>
+      <p style="color: #666; font-size: 16px">
+        Thank you for joining our platform. To complete your registration, please verify your email address using the
+        OTP below:
+      </p>
+      <div style="margin: 20px 0; padding: 15px; background-color: #fff; border: 1px solid #ddd; border-radius: 4px">
+        <h2 style="color: #333; margin: 0">Your OTP: {{otp}}</h2>
+      </div>
+      <p style="color: #666; font-size: 16px">Or click the button below to verify your account:</p>
+      <a
+        href="{{verifyLink}}"
+        style="
+          display: inline-block;
+          padding: 12px 24px;
+          background-color: #007bff;
+          color: white;
+          text-decoration: none;
+          border-radius: 4px;
+          font-size: 16px;
+        "
+      >
+        Verify Account
+      </a>
+      <p style="color: #666; font-size: 14px; margin-top: 20px">
+        This OTP will expire in 10 minutes. If you didn't request this, please ignore this email.
+      </p>
+      <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0" />
+      <p style="color: #666; font-size: 12px">
+        Booking Tutor Team<br />
+        <a href="https://bookingtutor.com">bookingtutor.com</a>
+      </p>
+    </div>
+  </body>
+</html>
