@@ -458,6 +458,168 @@ router.get("/all-tutors", verifyToken, restrictToRole("Admin"), async (req, res)
 
 /**
  * @swagger
+ * /api/certifications/account/{accountId}:
+ *   get:
+ *     summary: Get account details by ID
+ *     description: Retrieves details of an account by its ID, including certifications if the account is a Tutor. Accessible to Admin or the account owner.
+ *     tags: [Certifications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: accountId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the account to retrieve
+ *     responses:
+ *       200:
+ *         description: Account retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: Account retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     account:
+ *                       type: object
+ *                       properties:
+ *                         _id:
+ *                           type: string
+ *                         fullName:
+ *                           type: string
+ *                         email:
+ *                           type: string
+ *                         phone:
+ *                           type: string
+ *                         role:
+ *                           type: string
+ *                         status:
+ *                           type: string
+ *                         createdAt:
+ *                           type: string
+ *                           format: date-time
+ *                     certifications:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           _id:
+ *                             type: string
+ *                           name:
+ *                             type: string
+ *                           description:
+ *                             type: string
+ *                           image:
+ *                             type: array
+ *                             items:
+ *                               type: string
+ *                           experience:
+ *                             type: number
+ *                           isChecked:
+ *                             type: boolean
+ *                           isCanTeach:
+ *                             type: boolean
+ *                           createBy:
+ *                             type: string
+ *       400:
+ *         description: Invalid account ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 400
+ *                 message:
+ *                   type: string
+ *                   example: Valid account ID is required
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 401
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized! Invalid token
+ *       403:
+ *         description: Forbidden (not Admin or account owner)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 403
+ *                 message:
+ *                   type: string
+ *                   example: Access denied. You are not authorized to view this account.
+ *       404:
+ *         description: Account not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 404
+ *                 message:
+ *                   type: string
+ *                   example: Account not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+router.get("/account/:accountId", verifyToken, async (req, res) => {
+  try {
+    const { accountId } = req.params;
+    const userId = req.userId;
+    const userRole = req.userRole;
+
+    // Kiểm tra quyền truy cập: Chỉ Admin hoặc chính chủ account được phép
+    if (userRole !== "Admin" && userId !== accountId) {
+      return res.status(403).json({
+        status: 403,
+        message: "Access denied. You are not authorized to view this account.",
+      });
+    }
+
+    const result = await certificationService.getAccountById(accountId);
+    res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error in get account by ID route:", error);
+    res.status(500).json({ status: 500, message: "Internal server error" });
+  }
+});
+
+/**
+ * @swagger
  * /api/certifications/{certificationId}/is-checked:
  *   patch:
  *     summary: Update certification isChecked to true

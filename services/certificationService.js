@@ -438,6 +438,59 @@ const certificationService = {
       return { status: 500, message: "Internal server error" };
     }
   },
+
+  // Thêm vào certificationService trong certificationService.js
+  async getAccountById(accountId) {
+    try {
+      // Validate accountId
+      if (!accountId || typeof accountId !== "string") {
+        return { status: 400, message: "Valid account ID is required" };
+      }
+
+      // Tìm account theo ID
+      const account = await db.Account.findById(accountId).select("_id fullName email phone role status createdAt");
+      if (!account) {
+        return { status: 404, message: "Account not found" };
+      }
+
+      // Tìm các chứng chỉ của account (nếu là Tutor)
+      let certifications = [];
+      if (account.role === "Tutor") {
+        certifications = await db.Certification.find({ createBy: accountId }).select(
+          "_id name description image experience isChecked isCanTeach createBy"
+        );
+      }
+
+      return {
+        status: 200,
+        message: "Account retrieved successfully",
+        data: {
+          account: {
+            _id: account._id,
+            fullName: account.fullName,
+            email: account.email,
+            phone: account.phone,
+            role: account.role,
+            status: account.status,
+            createdAt: account.createdAt,
+          },
+          certifications: certifications.map((cert) => ({
+            _id: cert._id,
+            name: cert.name,
+            description: cert.description,
+            image: cert.image,
+            experience: cert.experience,
+            isChecked: cert.isChecked,
+            isCanTeach: cert.isCanTeach,
+            createBy: cert.createBy,
+          })),
+        },
+      };
+    } catch (error) {
+      console.error("Error fetching account by ID:", error);
+      return { status: 500, message: "Internal server error" };
+    }
+  },
 };
 
 module.exports = certificationService;
