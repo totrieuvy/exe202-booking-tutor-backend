@@ -286,4 +286,144 @@ router.get("/", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/courses/account/{accountId}:
+ *   get:
+ *     summary: Get account details with certifications and courses
+ *     description: Retrieves account details, certifications, and courses for a specific account ID
+ *     tags: [Courses]
+ *     parameters:
+ *       - in: path
+ *         name: accountId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the account
+ *     responses:
+ *       200:
+ *         description: Account details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: Account details retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     account:
+ *                       type: object
+ *                       properties:
+ *                         _id:
+ *                           type: string
+ *                         fullName:
+ *                           type: string
+ *                         email:
+ *                           type: string
+ *                         phone:
+ *                           type: string
+ *                         status:
+ *                           type: string
+ *                         role:
+ *                           type: string
+ *                     certifications:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           _id:
+ *                             type: string
+ *                           name:
+ *                             type: string
+ *                           description:
+ *                             type: string
+ *                           image:
+ *                             type: string
+ *                           experience:
+ *                             type: number
+ *                           isChecked:
+ *                             type: boolean
+ *                           isCanTeach:
+ *                             type: boolean
+ *                           createBy:
+ *                             type: string
+ *                     courses:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           _id:
+ *                             type: string
+ *                           name:
+ *                             type: string
+ *                           description:
+ *                             type: string
+ *                           image:
+ *                             type: string
+ *                           price:
+ *                             type: number
+ *                           createdBy:
+ *                             type: string
+ *                           isActive:
+ *                             type: boolean
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *       400:
+ *         description: Invalid account ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 400
+ *                 message:
+ *                   type: string
+ *                   example: Valid account ID is required
+ *       404:
+ *         description: Account not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 404
+ *                 message:
+ *                   type: string
+ *                   example: Account not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+router.get("/account/:accountId", async (req, res) => {
+  try {
+    const { accountId } = req.params;
+    const result = await courseService.getAccountDetailsWithCourses(accountId);
+    res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error in get account details route:", error);
+    res.status(500).json({ status: 500, message: "Internal server error" });
+  }
+});
+
 module.exports = router;

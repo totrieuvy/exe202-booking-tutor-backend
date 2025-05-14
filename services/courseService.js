@@ -159,6 +159,72 @@ const courseService = {
       return { status: 500, message: "Internal server error" };
     }
   },
+
+  async getAccountDetailsWithCourses(accountId) {
+    try {
+      // Validate accountId
+      if (!accountId || typeof accountId !== "string") {
+        return { status: 400, message: "Valid account ID is required" };
+      }
+
+      // Fetch account
+      const account = await db.Account.findById(accountId).select("_id fullName email phone status role");
+      if (!account) {
+        return { status: 404, message: "Account not found" };
+      }
+
+      // Fetch certifications
+      const certifications = await db.Certification.find({ createBy: accountId }).select(
+        "_id name description image experience isChecked isCanTeach createBy"
+      );
+
+      // Fetch courses
+      const courses = await db.Course.find({ createdBy: accountId }).select(
+        "_id name description image price createdBy isActive createdAt"
+      );
+
+      // Format response
+      const result = {
+        account: {
+          _id: account._id,
+          fullName: account.fullName,
+          email: account.email,
+          phone: account.phone,
+          status: account.status,
+          role: account.role,
+        },
+        certifications: certifications.map((cert) => ({
+          _id: cert._id,
+          name: cert.name,
+          description: cert.description,
+          image: cert.image,
+          experience: cert.experience,
+          isChecked: cert.isChecked,
+          isCanTeach: cert.isCanTeach,
+          createBy: cert.createBy,
+        })),
+        courses: courses.map((course) => ({
+          _id: course._id,
+          name: course.name,
+          description: course.description,
+          image: course.image,
+          price: course.price,
+          createdBy: course.createdBy,
+          isActive: course.isActive,
+          createdAt: course.createdAt,
+        })),
+      };
+
+      return {
+        status: 200,
+        message: "Account details retrieved successfully",
+        data: result,
+      };
+    } catch (error) {
+      console.error("Error fetching account details with courses:", error);
+      return { status: 500, message: "Internal server error" };
+    }
+  },
 };
 
 module.exports = courseService;
