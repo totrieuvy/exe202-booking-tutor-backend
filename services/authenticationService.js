@@ -160,7 +160,7 @@ const authenticationService = {
 
       try {
         await transporter.sendMail({
-          from: '"Booking Tutor" <no-reply@bookingtutor.com>',
+          from: '"Booking Tutor" <vytotrieu12a121@gmail.com>',
           to: email,
           subject: "Verify Your Booking Tutor Account",
           html: htmlContent,
@@ -225,7 +225,7 @@ const authenticationService = {
         let htmlContent = fs.readFileSync(templatePath, "utf8").replace("{{fullName}}", account.fullName);
         try {
           await transporter.sendMail({
-            from: '"Booking Tutor" <no-reply@bookingtutor.com>',
+            from: '"Booking Tutor" <vytotrieu12a121@gmail.com>',
             to: email,
             subject: "Welcome to Booking Tutor!",
             html: htmlContent,
