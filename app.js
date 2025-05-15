@@ -13,6 +13,7 @@ db.connectDb().catch(console.error);
 const authenticationRoute = require("./routes/authenticationRoute");
 const certificationRoute = require("./routes/certificationRoute");
 const courseRoute = require("./routes/courseRoute");
+const feedbackRoute = require("./routes/feedbackRoute");
 
 var app = express();
 
@@ -34,6 +35,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/api/auth", authenticationRoute);
 app.use("/api/certifications", certificationRoute);
 app.use("/api/courses", courseRoute);
+app.use("/api/feedback", feedbackRoute);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
