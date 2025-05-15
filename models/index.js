@@ -3,12 +3,14 @@ const mongoose = require("mongoose");
 const Account = require("./account");
 const Certification = require("./certification");
 const Course = require("./course");
+const Feedback = require("./feedback");
 
 const db = {};
 
 db.Account = Account;
 db.Certification = Certification;
 db.Course = Course;
+db.Feedback = Feedback;
 
 db.connectDb = async () => {
   try {
