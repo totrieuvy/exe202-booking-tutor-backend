@@ -55,8 +55,8 @@ router.get("/revenue/:year", async (req, res) => {
  * @swagger
  * /api/dashboard/account-stats:
  *   get:
- *     summary: Get statistics of active and inactive Tutors and Users
- *     description: Counts the number of active and inactive accounts for Tutors and Users.
+ *     summary: Get statistics of Active and Inactive Tutors and Users
+ *ilab:     description: Counts the number of Active and Inactive accounts for Tutors and Users.
  *     tags: [Dashboard]
  *     responses:
  *       200:
@@ -69,16 +69,16 @@ router.get("/revenue/:year", async (req, res) => {
  *                 tutors:
  *                   type: object
  *                   properties:
- *                     active:
+ *                     Active:
  *                       type: integer
- *                     inactive:
+ *                     Inactive:
  *                       type: integer
  *                 users:
  *                   type: object
  *                   properties:
- *                     active:
+ *                     Active:
  *                       type: integer
- *                     inactive:
+ *                     Inactive:
  *                       type: integer
  *       500:
  *         description: Server error
@@ -96,8 +96,8 @@ router.get("/account-stats", async (req, res) => {
  * @swagger
  * /api/dashboard/course-stats:
  *   get:
- *     summary: Get statistics of active and inactive Courses
- *     description: Counts the number of active and inactive courses based on isActive field.
+ *     summary: Get statistics of Active and Inactive Courses
+ *     description: Counts the number of Active (isActive true) and Inactive (isActive false) courses.
  *     tags: [Dashboard]
  *     responses:
  *       200:
@@ -107,10 +107,12 @@ router.get("/account-stats", async (req, res) => {
  *             schema:
  *               type: object
  *               properties:
- *                 active:
+ *                 Active:
  *                   type: integer
- *                 inactive:
+ *                   description: Number of courses with isActive true
+ *                 Inactive:
  *                   type: integer
+ *                   description: Number of courses with isActive false
  *       500:
  *         description: Server error
  */
