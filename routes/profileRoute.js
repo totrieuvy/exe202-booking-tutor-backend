@@ -5,10 +5,10 @@ const verifyToken = require("../middlewares/verifyToken");
 
 /**
  * @swagger
- * /account/profile:
+ * /api/account/profile:
  *   get:
  *     summary: Get account profile information
- *     tags: [Account]
+ *     tags: [Profile]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -47,10 +47,10 @@ router.get("/profile", verifyToken, async (req, res, next) => {
 
 /**
  * @swagger
- * /account/profile:
+ * /api/account/profile:
  *   put:
  *     summary: Update account profile information
- *     tags: [Account]
+ *     tags: [Profile]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
