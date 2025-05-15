@@ -1,6 +1,5 @@
 const httpErrors = require("http-errors");
 const db = require("../models/index");
-v;
 
 const createFeedback = async ({ courseId, accountId, rating, comment }) => {
   try {
