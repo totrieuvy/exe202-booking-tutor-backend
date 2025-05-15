@@ -4,7 +4,7 @@ const dashboardService = require("../services/dashboardService");
 
 /**
  * @swagger
- * /dashboard/revenue/{year}:
+ * /api/dashboard/revenue/{year}:
  *   get:
  *     summary: Get revenue statistics by month for a given year
  *     description: Calculates 15% of totalAmount from completed orders, grouped by month for the specified year.
@@ -53,7 +53,7 @@ router.get("/revenue/:year", async (req, res) => {
 
 /**
  * @swagger
- * /dashboard/account-stats:
+ * /api/dashboard/account-stats:
  *   get:
  *     summary: Get statistics of active and inactive Tutors and Users
  *     description: Counts the number of active and inactive accounts for Tutors and Users.
@@ -94,7 +94,7 @@ router.get("/account-stats", async (req, res) => {
 
 /**
  * @swagger
- * /dashboard/course-stats:
+ * /api/dashboard/course-stats:
  *   get:
  *     summary: Get statistics of active and inactive Courses
  *     description: Counts the number of active and inactive courses based on isActive field.
@@ -125,7 +125,7 @@ router.get("/course-stats", async (req, res) => {
 
 /**
  * @swagger
- * /dashboard/top-tutor:
+ * /api/dashboard/top-tutor:
  *   get:
  *     summary: Get the Tutor with the most completed courses
  *     description: Identifies the Tutor with the highest number of completed courses (isFinishCourse true) based on courses they created.
