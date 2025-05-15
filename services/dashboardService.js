@@ -1,156 +1,170 @@
-const db = require("../models/index");
+const express = require("express");
+const router = express.Router();
+const dashboardService = require("../services/dashboardService");
 
-const getRevenueByYear = async (year) => {
-  const startDate = new Date(year, 0, 1);
-  const endDate = new Date(year + 1, 0, 1);
+/**
+ * @swagger
+ * /dashboard/revenue/{year}:
+ *   get:
+ *     summary: Get revenue statistics by month for a given year
+ *     description: Calculates 15% of totalAmount from completed orders, grouped by month for the specified year.
+ *     tags: [Dashboard]
+ *     parameters:
+ *       - in: path
+ *         name: year
+ *         schema:
+ *           type: integer
+ *           example: 2025
+ *         required: true
+ *         description: The year for revenue calculation (e.g., 2025)
+ *     responses:
+ *       200:
+ *         description: Revenue statistics by month
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   month:
+ *                     type: integer
+ *                     description: Month number (1-12)
+ *                   revenue:
+ *                     type: number
+ *                     description: Revenue (15% of totalAmount)
+ *       400:
+ *         description: Invalid year
+ *       500:
+ *         description: Server error
+ */
+router.get("/revenue/:year", async (req, res) => {
+  try {
+    const year = parseInt(req.params.year);
+    if (isNaN(year)) {
+      return res.status(400).json({ message: "Invalid year" });
+    }
+    const revenue = await dashboardService.getRevenueByYear(year);
+    res.status(200).json(revenue);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
-  const revenue = await db.Order.aggregate([
-    {
-      $match: {
-        createdAt: { $gte: startDate, $lt: endDate },
-        status: "Completed",
-      },
-    },
-    {
-      $group: {
-        _id: { $month: "$createdAt" },
-        totalRevenue: { $sum: { $multiply: ["$totalAmount", 0.15] } },
-      },
-    },
-    {
-      $sort: { _id: 1 },
-    },
-    {
-      $project: {
-        month: "$_id",
-        revenue: "$totalRevenue",
-        _id: 0,
-      },
-    },
-  ]);
+/**
+ * @swagger
+ * /dashboard/account-stats:
+ *   get:
+ *     summary: Get statistics of Active and Inactive Tutors and Users
+ *ilab:     description: Counts the number of Active and Inactive accounts for Tutors and Users.
+ *     tags: [Dashboard]
+ *     responses:
+ *       200:
+ *         description: Account statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 tutors:
+ *                   type: object
+ *                   properties:
+ *                     Active:
+ *                       type: integer
+ *                     Inactive:
+ *                       type: integer
+ *                 users:
+ *                   type: object
+ *                   properties:
+ *                     Active:
+ *                       type: integer
+ *                     Inactive:
+ *                       type: integer
+ *       500:
+ *         description: Server error
+ */
+router.get("/account-stats", async (req, res) => {
+  try {
+    const stats = await dashboardService.getAccountStats();
+    res.status(200).json(stats);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
-  const result = Array.from({ length: 12 }, (_, i) => {
-    const month = i + 1;
-    const monthData = revenue.find((r) => r.month === month);
-    return { month, revenue: monthData ? monthData.revenue : 0 };
-  });
+/**
+ * @swagger
+ * /dashboard/course-stats:
+ *   get:
+ *     summary: Get statistics of Active and Inactive Courses
+ *     description: Counts the number of Active (isActive true) and Inactive (isActive false) courses.
+ *     tags: [Dashboard]
+ *     responses:
+ *       200:
+ *         description: Course statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 Active:
+ *                   type: integer
+ *                   description: Number of courses with isActive true
+ *                 Inactive:
+ *                   type: integer
+ *                   description: Number of courses with isActive false
+ *       500:
+ *         description: Server error
+ */
+router.get("/course-stats", async (req, res) => {
+  try {
+    const stats = await dashboardService.getCourseStats();
+    res.status(200).json(stats);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
-  return result;
-};
+/**
+ * @swagger
+ * /dashboard/top-tutor:
+ *   get:
+ *     summary: Get the Tutor with the most completed courses
+ *     description: Identifies the Tutor with the highest number of completed courses (isFinishCourse true) based on courses they created.
+ *     tags: [Dashboard]
+ *     responses:
+ *       200:
+ *         description: Top Tutor information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 tutor:
+ *                   type: object
+ *                   properties:
+ *                     fullName:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *                 completedCourses:
+ *                   type: integer
+ *                   description: Number of completed courses
+ *       404:
+ *         description: No Tutor found
+ *       500:
+ *         description: Server error
+ */
+router.get("/top-tutor", async (req, res) => {
+  try {
+    const topTutor = await dashboardService.getTopTutor();
+    if (!topTutor) {
+      return res.status(404).json({ message: "No Tutor found" });
+    }
+    res.status(200).json(topTutor);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
-const getAccountStats = async () => {
-  const stats = await db.Account.aggregate([
-    {
-      $match: {
-        role: { $in: ["Tutor", "User"] },
-      },
-    },
-    {
-      $group: {
-        _id: {
-          role: "$role",
-          status: "$status",
-        },
-        count: { $sum: 1 },
-      },
-    },
-  ]);
-
-  const result = {
-    tutors: { active: 0, inactive: 0 },
-    users: { active: 0, inactive: 0 },
-  };
-
-  stats.forEach((stat) => {
-    const role = stat._id.role.toLowerCase();
-    const status = stat._id.status.toLowerCase();
-    result[role][status] = stat.count;
-  });
-
-  return result;
-};
-
-const getCourseStats = async () => {
-  const stats = await db.Course.aggregate([
-    {
-      $group: {
-        _id: "$isActive",
-        count: { $sum: 1 },
-      },
-    },
-  ]);
-
-  const result = { active: 0, inactive: 0 };
-  stats.forEach((stat) => {
-    const status = stat._id ? "active" : "inactive";
-    result[status] = stat.count;
-  });
-
-  return result;
-};
-
-const getTopTutor = async () => {
-  const topTutor = await db.OrderDetail.aggregate([
-    {
-      $match: {
-        isFinishCourse: true,
-      },
-    },
-    {
-      $lookup: {
-        from: "courses",
-        localField: "course",
-        foreignField: "_id",
-        as: "course",
-      },
-    },
-    { $unwind: "$course" },
-    {
-      $lookup: {
-        from: "accounts",
-        localField: "course.createdBy",
-        foreignField: "_id",
-        as: "tutor",
-      },
-    },
-    { $unwind: "$tutor" },
-    {
-      $match: {
-        "tutor.role": "Tutor",
-      },
-    },
-    {
-      $group: {
-        _id: "$tutor._id",
-        fullName: { $first: "$tutor.fullName" },
-        email: { $first: "$tutor.email" },
-        completedCourses: { $sum: 1 },
-      },
-    },
-    {
-      $sort: { completedCourses: -1 },
-    },
-    {
-      $limit: 1,
-    },
-    {
-      $project: {
-        tutor: {
-          fullName: "$fullName",
-          email: "$email",
-        },
-        completedCourses: 1,
-        _id: 0,
-      },
-    },
-  ]);
-
-  return topTutor.length > 0 ? topTutor[0] : null;
-};
-
-module.exports = {
-  getRevenueByYear,
-  getAccountStats,
-  getCourseStats,
-  getTopTutor,
-};
+module.exports = router;
