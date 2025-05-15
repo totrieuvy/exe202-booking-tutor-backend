@@ -4,6 +4,9 @@ const Account = require("./account");
 const Certification = require("./certification");
 const Course = require("./course");
 const Feedback = require("./feedback");
+const OrderDetail = require("./orderDetail");
+const PaymentMethod = require("./paymentMethod");
+const Order = require("./order");
 
 const db = {};
 
@@ -11,6 +14,9 @@ db.Account = Account;
 db.Certification = Certification;
 db.Course = Course;
 db.Feedback = Feedback;
+db.Order = Order;
+db.OrderDetail = OrderDetail;
+db.PaymentMethod = PaymentMethod;
 
 db.connectDb = async () => {
   try {
