@@ -15,6 +15,7 @@ const certificationRoute = require("./routes/certificationRoute");
 const courseRoute = require("./routes/courseRoute");
 const feedbackRoute = require("./routes/feedbackRoute");
 const orderRoute = require("./routes/orderRoute");
+const profileRoute = require("./routes/profileRoute");
 
 var app = express();
 
@@ -38,6 +39,7 @@ app.use("/api/certifications", certificationRoute);
 app.use("/api/courses", courseRoute);
 app.use("/api/feedback", feedbackRoute);
 app.use("/api/orders", orderRoute);
+app.use("/api/account", profileRoute);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
