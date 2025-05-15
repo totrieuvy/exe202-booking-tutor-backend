@@ -119,7 +119,37 @@ const orderService = {
         throw httpErrors.BadRequest("Order is already paid");
       }
 
-      // Update status to Paid (using "Completed" as per schema)
+      // Fetch order details
+      const orderDetails = await db.OrderDetail.find({ order: orderId }).populate("course");
+
+      // Distribute payment
+      const adminId = "6824b5e596bf5733d76f899b"; // Hardcoded admin ID
+      for (const detail of orderDetails) {
+        const courseCreatorId = detail.course.createdBy.toString();
+        const price = detail.price;
+
+        // Calculate 15% for admin and 85% for course creator
+        const adminAmount = price * 0.15;
+        const creatorAmount = price * 0.85;
+
+        // Update admin balance
+        const admin = await db.Account.findById(adminId);
+        if (!admin) {
+          throw httpErrors.NotFound("Admin account not found");
+        }
+        admin.balance += adminAmount;
+        await admin.save();
+
+        // Update course creator balance
+        const creator = await db.Account.findById(courseCreatorId);
+        if (!creator) {
+          throw httpErrors.NotFound(`Course creator account ${courseCreatorId} not found`);
+        }
+        creator.balance += creatorAmount;
+        await creator.save();
+      }
+
+      // Update order status to Paid (using "Completed" as per schema)
       order.status = "Completed";
       await order.save();
 
