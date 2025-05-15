@@ -1,5 +1,6 @@
-const Feedback = require("../models/feedback");
 const httpErrors = require("http-errors");
+const db = require("../models/index");
+v;
 
 const createFeedback = async ({ courseId, accountId, rating, comment }) => {
   try {
@@ -8,8 +9,8 @@ const createFeedback = async ({ courseId, accountId, rating, comment }) => {
       throw httpErrors.BadRequest("All fields are required");
     }
 
-    // Create new feedback
-    const feedback = new Feedback({
+    // Create new feedback using db.Feedback
+    const feedback = new db.Feedback({
       courseId,
       accountId,
       rating,
@@ -32,7 +33,7 @@ const getFeedbackByCourse = async (courseId) => {
       throw httpErrors.BadRequest("Course ID is required");
     }
 
-    const feedbacks = await Feedback.find({ courseId })
+    const feedbacks = await db.Feedback.find({ courseId })
       .populate("accountId", "fullName email avatar") // Populate specific account details
       .populate("courseId", "title") // Populate course details
       .sort({ createdAt: -1 }); // Sort by newest first
