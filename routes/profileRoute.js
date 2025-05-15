@@ -38,6 +38,7 @@ const verifyToken = require("../middlewares/verifyToken");
  */
 router.get("/profile", verifyToken, async (req, res, next) => {
   try {
+    console.log("Id: ", req.userId);
     const account = await profileService.getAccountProfile(req.userId);
     res.json(account);
   } catch (error) {

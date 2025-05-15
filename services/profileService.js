@@ -1,12 +1,13 @@
 const httpErrors = require("http-errors");
-const db = require("../models/account");
+const db = require("../models/index"); // Import the db object from index.js
 
 const getAccountProfile = async (userId) => {
-  const account = await db.Account.findById(userId).select("fullName email phone avatar balance");
-  if (!account) {
+  const accounts = await db.Account.find({ _id: userId }).select("fullName email phone avatar balance");
+  if (!accounts || accounts.length === 0) {
     throw httpErrors.NotFound("Account not found");
   }
-  return account;
+  // Return the first match (assuming unique _id)
+  return accounts[0];
 };
 
 const updateAccountProfile = async (userId, updates) => {
@@ -18,10 +19,11 @@ const updateAccountProfile = async (userId, updates) => {
     throw httpErrors.BadRequest("Invalid update fields");
   }
 
-  const account = await db.Account.findById(userId);
-  if (!account) {
+  const accounts = await db.Account.find({ _id: userId });
+  if (!accounts || accounts.length === 0) {
     throw httpErrors.NotFound("Account not found");
   }
+  const account = accounts[0]; // Use the first match
 
   // Check for unique constraints
   if (updates.email && updates.email !== account.email) {
