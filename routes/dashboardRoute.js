@@ -1,25 +1,23 @@
 const express = require("express");
 const router = express.Router();
-const dashboardService = require("../services/dashboardService");
+const StatsService = require("../services/dashboardService");
 
 /**
  * @swagger
  * /api/dashboard/revenue/{year}:
  *   get:
- *     summary: Get revenue statistics by month for a given year
- *     description: Calculates 15% of totalAmount from completed orders, grouped by month for the specified year.
- *     tags: [Dashboard]
+ *     summary: Get monthly revenue for a specific year
+ *     tags: [Statistics]
  *     parameters:
  *       - in: path
  *         name: year
  *         schema:
  *           type: integer
- *           example: 2025
  *         required: true
- *         description: The year for revenue calculation (e.g., 2025)
+ *         description: The year to calculate revenue (e.g., 2025)
  *     responses:
  *       200:
- *         description: Revenue statistics by month
+ *         description: Monthly revenue data
  *         content:
  *           application/json:
  *             schema:
@@ -32,20 +30,20 @@ const dashboardService = require("../services/dashboardService");
  *                     description: Month number (1-12)
  *                   revenue:
  *                     type: number
- *                     description: Revenue (15% of totalAmount)
+ *                     description: Revenue for the month (15% of totalAmount)
  *       400:
- *         description: Invalid year
+ *         description: Invalid year provided
  *       500:
  *         description: Server error
  */
 router.get("/revenue/:year", async (req, res) => {
   try {
     const year = parseInt(req.params.year);
-    if (isNaN(year)) {
+    if (isNaN(year) || year < 2000 || year > new Date().getFullYear()) {
       return res.status(400).json({ message: "Invalid year" });
     }
-    const revenue = await dashboardService.getRevenueByYear(year);
-    res.status(200).json(revenue);
+    const revenue = await StatsService.getMonthlyRevenue(year);
+    res.json(revenue);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -53,55 +51,13 @@ router.get("/revenue/:year", async (req, res) => {
 
 /**
  * @swagger
- * /api/dashboard/account-stats:
+ * /api/dashboard/accounts/status:
  *   get:
- *     summary: Get statistics of Active and Inactive Tutors and Users
- *ilab:     description: Counts the number of Active and Inactive accounts for Tutors and Users.
- *     tags: [Dashboard]
+ *     summary: Get count of accounts by status
+ *     tags: [Statistics]
  *     responses:
  *       200:
- *         description: Account statistics
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 tutors:
- *                   type: object
- *                   properties:
- *                     Active:
- *                       type: integer
- *                     Inactive:
- *                       type: integer
- *                 users:
- *                   type: object
- *                   properties:
- *                     Active:
- *                       type: integer
- *                     Inactive:
- *                       type: integer
- *       500:
- *         description: Server error
- */
-router.get("/account-stats", async (req, res) => {
-  try {
-    const stats = await dashboardService.getAccountStats();
-    res.status(200).json(stats);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-/**
- * @swagger
- * /api/dashboard/course-stats:
- *   get:
- *     summary: Get statistics of Active and Inactive Courses
- *     description: Counts the number of Active (isActive true) and Inactive (isActive false) courses.
- *     tags: [Dashboard]
- *     responses:
- *       200:
- *         description: Course statistics
+ *         description: Account status statistics
  *         content:
  *           application/json:
  *             schema:
@@ -109,17 +65,17 @@ router.get("/account-stats", async (req, res) => {
  *               properties:
  *                 Active:
  *                   type: integer
- *                   description: Number of courses with isActive true
+ *                   description: Number of active accounts
  *                 Inactive:
  *                   type: integer
- *                   description: Number of courses with isActive false
+ *                   description: Number of inactive accounts
  *       500:
  *         description: Server error
  */
-router.get("/course-stats", async (req, res) => {
+router.get("/accounts/status", async (req, res) => {
   try {
-    const stats = await dashboardService.getCourseStats();
-    res.status(200).json(stats);
+    const stats = await StatsService.getAccountStatusStats();
+    res.json(stats);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -127,41 +83,74 @@ router.get("/course-stats", async (req, res) => {
 
 /**
  * @swagger
- * /api/dashboard/top-tutor:
+ * /api/dashboard/courses/status:
  *   get:
- *     summary: Get the Tutor with the most completed courses
- *     description: Identifies the Tutor with the highest number of completed courses (isFinishCourse true) based on courses they created.
- *     tags: [Dashboard]
+ *     summary: Get count of courses by active status
+ *     tags: [Statistics]
  *     responses:
  *       200:
- *         description: Top Tutor information
+ *         description: Course status statistics
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 tutor:
- *                   type: object
- *                   properties:
- *                     fullName:
- *                       type: string
- *                     email:
- *                       type: string
+ *                 Active:
+ *                   type: integer
+ *                   description: Number of active courses
+ *                 Inactive:
+ *                   type: integer
+ *                   description: Number of inactive courses
+ *       500:
+ *         description: Server error
+ */
+router.get("/courses/status", async (req, res) => {
+  try {
+    const stats = await StatsService.getCourseStatusStats();
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/dashboard/top-account:
+ *   get:
+ *     summary: Get account with most completed courses
+ *     tags: [Statistics]
+ *     responses:
+ *       200:
+ *         description: Account with most completed courses
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accountId:
+ *                   type: string
+ *                   description: ID of the account
+ *                 fullName:
+ *                   type: string
+ *                   description: Full name of the account
+ *                 email:
+ *                   type: string
+ *                   description: Email of the account
  *                 completedCourses:
  *                   type: integer
  *                   description: Number of completed courses
  *       404:
- *         description: No Tutor found
+ *         description: No account with completed courses found
  *       500:
  *         description: Server error
  */
-router.get("/top-tutor", async (req, res) => {
+router.get("/top-account", async (req, res) => {
   try {
-    const topTutor = await dashboardService.getTopTutor();
-    if (!topTutor) {
-      return res.status(404).json({ message: "No Tutor found" });
+    const topAccount = await StatsService.getTopAccountByCompletedCourses();
+    if (!topAccount) {
+      return res.status(404).json({ message: "No account with completed courses found" });
     }
-    res.status(200).json(topTutor);
+    res.json(topAccount);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -1,170 +1,133 @@
-const express = require("express");
-const router = express.Router();
-const dashboardService = require("../services/dashboardService");
+const db = require("../models/index");
 
-/**
- * @swagger
- * /dashboard/revenue/{year}:
- *   get:
- *     summary: Get revenue statistics by month for a given year
- *     description: Calculates 15% of totalAmount from completed orders, grouped by month for the specified year.
- *     tags: [Dashboard]
- *     parameters:
- *       - in: path
- *         name: year
- *         schema:
- *           type: integer
- *           example: 2025
- *         required: true
- *         description: The year for revenue calculation (e.g., 2025)
- *     responses:
- *       200:
- *         description: Revenue statistics by month
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   month:
- *                     type: integer
- *                     description: Month number (1-12)
- *                   revenue:
- *                     type: number
- *                     description: Revenue (15% of totalAmount)
- *       400:
- *         description: Invalid year
- *       500:
- *         description: Server error
- */
-router.get("/revenue/:year", async (req, res) => {
-  try {
-    const year = parseInt(req.params.year);
-    if (isNaN(year)) {
-      return res.status(400).json({ message: "Invalid year" });
-    }
-    const revenue = await dashboardService.getRevenueByYear(year);
-    res.status(200).json(revenue);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+class StatsService {
+  // Get revenue by month for a given year (15% of totalAmount)
+  static async getMonthlyRevenue(year) {
+    const startDate = new Date(year, 0, 1); // January 1st of the year
+    const endDate = new Date(year + 1, 0, 1); // January 1st of next year
+
+    const revenueData = await db.Order.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startDate, $lt: endDate },
+          status: "Completed", // Only completed orders
+        },
+      },
+      {
+        $group: {
+          _id: { $month: "$createdAt" },
+          totalRevenue: { $sum: "$totalAmount" },
+        },
+      },
+      {
+        $sort: { _id: 1 },
+      },
+    ]);
+
+    // Initialize array for all 12 months
+    const monthlyRevenue = Array(12).fill(0);
+    revenueData.forEach((data) => {
+      monthlyRevenue[data._id - 1] = (data.totalRevenue * 0.15).toFixed(2); // 15% of total
+    });
+
+    return monthlyRevenue.map((revenue, index) => ({
+      month: index + 1,
+      revenue: parseFloat(revenue),
+    }));
   }
-});
 
-/**
- * @swagger
- * /dashboard/account-stats:
- *   get:
- *     summary: Get statistics of Active and Inactive Tutors and Users
- *ilab:     description: Counts the number of Active and Inactive accounts for Tutors and Users.
- *     tags: [Dashboard]
- *     responses:
- *       200:
- *         description: Account statistics
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 tutors:
- *                   type: object
- *                   properties:
- *                     Active:
- *                       type: integer
- *                     Inactive:
- *                       type: integer
- *                 users:
- *                   type: object
- *                   properties:
- *                     Active:
- *                       type: integer
- *                     Inactive:
- *                       type: integer
- *       500:
- *         description: Server error
- */
-router.get("/account-stats", async (req, res) => {
-  try {
-    const stats = await dashboardService.getAccountStats();
-    res.status(200).json(stats);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  // Get count of Accounts by status
+  static async getAccountStatusStats() {
+    const stats = await db.Account.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const result = { Active: 0, Inactive: 0 };
+    stats.forEach((stat) => {
+      result[stat._id] = stat.count;
+    });
+
+    return result;
   }
-});
 
-/**
- * @swagger
- * /dashboard/course-stats:
- *   get:
- *     summary: Get statistics of Active and Inactive Courses
- *     description: Counts the number of Active (isActive true) and Inactive (isActive false) courses.
- *     tags: [Dashboard]
- *     responses:
- *       200:
- *         description: Course statistics
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 Active:
- *                   type: integer
- *                   description: Number of courses with isActive true
- *                 Inactive:
- *                   type: integer
- *                   description: Number of courses with isActive false
- *       500:
- *         description: Server error
- */
-router.get("/course-stats", async (req, res) => {
-  try {
-    const stats = await dashboardService.getCourseStats();
-    res.status(200).json(stats);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  // Get count of Courses by isActive status
+  static async getCourseStatusStats() {
+    const stats = await db.Course.aggregate([
+      {
+        $group: {
+          _id: "$isActive",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const result = { Active: 0, Inactive: 0 };
+    stats.forEach((stat) => {
+      result[stat._id ? "Active" : "Inactive"] = stat.count;
+    });
+
+    return result;
   }
-});
 
-/**
- * @swagger
- * /dashboard/top-tutor:
- *   get:
- *     summary: Get the Tutor with the most completed courses
- *     description: Identifies the Tutor with the highest number of completed courses (isFinishCourse true) based on courses they created.
- *     tags: [Dashboard]
- *     responses:
- *       200:
- *         description: Top Tutor information
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 tutor:
- *                   type: object
- *                   properties:
- *                     fullName:
- *                       type: string
- *                     email:
- *                       type: string
- *                 completedCourses:
- *                   type: integer
- *                   description: Number of completed courses
- *       404:
- *         description: No Tutor found
- *       500:
- *         description: Server error
- */
-router.get("/top-tutor", async (req, res) => {
-  try {
-    const topTutor = await dashboardService.getTopTutor();
-    if (!topTutor) {
-      return res.status(404).json({ message: "No Tutor found" });
-    }
-    res.status(200).json(topTutor);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  // Get Account with most completed orderDetails
+  static async getTopAccountByCompletedCourses() {
+    const topAccount = await db.OrderDetail.aggregate([
+      {
+        $match: {
+          isFinishCourse: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "orders",
+          localField: "order",
+          foreignField: "_id",
+          as: "orderData",
+        },
+      },
+      {
+        $unwind: "$orderData",
+      },
+      {
+        $group: {
+          _id: "$orderData.account",
+          completedCourses: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { completedCourses: -1 },
+      },
+      {
+        $limit: 1,
+      },
+      {
+        $lookup: {
+          from: "accounts",
+          localField: "_id",
+          foreignField: "_id",
+          as: "accountData",
+        },
+      },
+      {
+        $unwind: "$accountData",
+      },
+      {
+        $project: {
+          accountId: "$_id",
+          fullName: "$accountData.fullName",
+          email: "$accountData.email",
+          completedCourses: 1,
+        },
+      },
+    ]);
+
+    return topAccount[0] || null;
   }
-});
+}
 
-module.exports = router;
+module.exports = StatsService;
