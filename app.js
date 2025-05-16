@@ -17,8 +17,10 @@ const feedbackRoute = require("./routes/feedbackRoute");
 const orderRoute = require("./routes/orderRoute");
 const profileRoute = require("./routes/profileRoute");
 const dashboardRoute = require("./routes/dashboardRoute");
+const tutorRoute = require("./routes/tutorRoute");
 
 var app = express();
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(cors());
 
@@ -42,6 +44,7 @@ app.use("/api/feedback", feedbackRoute);
 app.use("/api/orders", orderRoute);
 app.use("/api/account", profileRoute);
 app.use("/api/dashboard", dashboardRoute);
+app.use("/api/tutor", tutorRoute);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
