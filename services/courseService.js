@@ -91,7 +91,7 @@ const courseService = {
 
       // Fetch accounts for creators
       const accounts = await db.Account.find({ _id: { $in: creatorIds } }).select(
-        "_id fullName email phone status role"
+        "_id fullName email phone avatar status role"
       );
 
       // Fetch certifications for creators

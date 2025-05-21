@@ -218,6 +218,8 @@ router.post("/", verifyToken, async (req, res) => {
  *                                 type: string
  *                               fullName:
  *                                 type: string
+ *                               avatar:
+ *                                 type: string
  *                               email:
  *                                 type: string
  *                               phone:
