@@ -190,6 +190,7 @@ const courseService = {
           fullName: account.fullName,
           email: account.email,
           phone: account.phone,
+          avatar: account.avatar,
           status: account.status,
           role: account.role,
         },
