@@ -102,7 +102,7 @@ const courseService = {
       // Map courses with max experience for sorting
       const coursesWithMaxExperience = courses.map((course) => {
         const courseCerts = certifications.filter((cert) => cert.createBy.equals(course.createdBy));
-        const maxExperience = courseCerts.length ? Math.max(...courseCerts.map((cert) => cert.experience)) : 0; // Default to 0 if no certifications
+        const maxExperience = courseCerts.length ? Math.max(...courseCerts.map((cert) => cert.experience)) : 0;
 
         return {
           course,
@@ -133,6 +133,7 @@ const courseService = {
               fullName: account.fullName,
               email: account.email,
               phone: account.phone,
+              avatar: account.avatar, // Added avatar here
               status: account.status,
               role: account.role,
             }
