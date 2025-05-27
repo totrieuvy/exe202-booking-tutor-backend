@@ -7,6 +7,8 @@ const Feedback = require("./feedback");
 const OrderDetail = require("./orderDetail");
 const PaymentMethod = require("./paymentMethod");
 const Order = require("./order");
+const Chapter = require("./chapter");
+const Content = require("./content");
 
 const db = {};
 
@@ -17,6 +19,8 @@ db.Feedback = Feedback;
 db.Order = Order;
 db.OrderDetail = OrderDetail;
 db.PaymentMethod = PaymentMethod;
+db.Chapter = Chapter;
+db.Content = Content;
 
 db.connectDb = async () => {
   try {
