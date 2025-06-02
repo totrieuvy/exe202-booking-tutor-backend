@@ -47,6 +47,7 @@ app.use("/api/account", profileRoute);
 app.use("/api/dashboard", dashboardRoute);
 app.use("/api/tutor", tutorRoute);
 app.use("/api/chapters", chapterContentRoute);
+app.use("/api/contents", chapterContentRoute);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
