@@ -9,6 +9,7 @@ const PaymentMethod = require("./paymentMethod");
 const Order = require("./order");
 const Chapter = require("./chapter");
 const Content = require("./content");
+const Forum = require("./forum");
 
 const db = {};
 
@@ -21,6 +22,7 @@ db.OrderDetail = OrderDetail;
 db.PaymentMethod = PaymentMethod;
 db.Chapter = Chapter;
 db.Content = Content;
+db.Forum = Forum;
 
 db.connectDb = async () => {
   try {
