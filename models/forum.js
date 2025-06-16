@@ -15,6 +15,10 @@ const forumSchema = new mongoose.Schema(
       type: String,
       required: [true, "Content is required!"],
     },
+    numberOfLikes: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
