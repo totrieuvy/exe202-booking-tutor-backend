@@ -203,4 +203,72 @@ router.patch("/complete-course/:orderDetailId", verifyToken, isTutor, upload.sin
   }
 });
 
+/**
+ * @swagger
+ * /api/tutor/courses/{accountId}:
+ *   get:
+ *     summary: Get all courses created by a specific account
+ *     tags: [Tutor]
+ *     parameters:
+ *       - in: path
+ *         name: accountId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID of the account whose courses are to be retrieved
+ *     responses:
+ *       200:
+ *         description: List of courses created by the account
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   courseId:
+ *                     type: string
+ *                     description: ID of the course
+ *                   name:
+ *                     type: string
+ *                     description: Name of the course
+ *                   description:
+ *                     type: string
+ *                     description: Description of the course
+ *                   image:
+ *                     type: string
+ *                     description: URL of the course image
+ *                   price:
+ *                     type: number
+ *                     description: Price of the course
+ *                   isActive:
+ *                     type: boolean
+ *                     description: Whether the course is active
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                     description: Creation date of the course
+ *                   updatedAt:
+ *                     type: string
+ *                     format: date-time
+ *                     description: Last update date of the course
+ *       400:
+ *         description: Invalid accountId
+ *       500:
+ *         description: Server error
+ */
+router.get("/courses/:accountId", async (req, res) => {
+  try {
+    const accountId = req.params.accountId;
+    if (!mongoose.isValidObjectId(accountId)) {
+      return res.status(400).json({ message: "Invalid accountId" });
+    }
+
+    const courses = await TutorService.getCoursesByAccountId(accountId);
+    res.json(courses);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;

@@ -89,6 +89,21 @@ class TutorService {
       certificateOfCompletion: orderDetail.certificateOfCompletion,
     };
   }
+
+  static async getCoursesByAccountId(accountId) {
+    const courses = await Course.find({ createdBy: accountId }).lean();
+
+    return courses.map((course) => ({
+      courseId: course._id,
+      name: course.name,
+      description: course.description,
+      image: course.image,
+      price: course.price,
+      isActive: course.isActive,
+      createdAt: course.createdAt,
+      updatedAt: course.updatedAt,
+    }));
+  }
 }
 
 module.exports = TutorService;
