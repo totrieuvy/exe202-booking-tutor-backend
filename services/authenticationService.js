@@ -287,6 +287,7 @@ const authenticationService = {
           message: "Login successful",
           token,
           user: {
+            id: account._id,
             fullName: account.fullName,
             email: account.email,
             phone: account.phone,

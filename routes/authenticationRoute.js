@@ -116,6 +116,8 @@ authenticationRoute.post("/verify-otp", async (req, res) => {
  *                 user:
  *                   type: object
  *                   properties:
+ *                     id:
+ *                       type: string
  *                     fullName:
  *                       type: string
  *                     email:
