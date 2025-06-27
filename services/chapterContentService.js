@@ -28,7 +28,7 @@ const createContent = async (contentData) => {
     const content = new Content({
       chapterId: contentData.chapterId,
       contentDescription: contentData.contentDescription,
-      createdBy: contentData.createdBy, // Sử dụng createdBy từ request
+      createdBy: contentData.createdBy,
     });
     await content.save();
     return content;

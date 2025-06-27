@@ -42,7 +42,7 @@ const { body, param, query, validationResult } = require("express-validator");
  *         description: Unauthorized
  */
 router.post(
-  "/",
+  "/chapters",
   verifyToken,
   [
     body("title").notEmpty().withMessage("Chapter title is required"),
@@ -107,7 +107,7 @@ router.post(
  *         description: Unauthorized
  */
 router.post(
-  "/contents",
+  "/",
   verifyToken,
   [
     body("chapterId").notEmpty().isMongoId().withMessage("Valid chapterId is required"),
@@ -162,7 +162,7 @@ router.post(
  *         description: Unauthorized
  */
 router.get(
-  "/course/:courseId",
+  "/chapters/course/:courseId",
   [param("courseId").isMongoId().withMessage("Valid courseId is required")],
   async (req, res, next) => {
     try {
@@ -209,7 +209,7 @@ router.get(
  *         description: Unauthorized
  */
 router.get(
-  "/chapter/:chapterId",
+  "/contents/chapter/:chapterId",
   [param("chapterId").isMongoId().withMessage("Valid chapterId is required")],
   async (req, res, next) => {
     try {
