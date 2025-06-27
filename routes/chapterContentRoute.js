@@ -68,7 +68,7 @@ router.post(
 // POST /api/contents - Create a new content
 /**
  * @swagger
- * /api/chapters/contents:
+ * /api/contents:
  *   post:
  *     summary: Create a new content
  *     tags: [Contents]
