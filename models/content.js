@@ -9,7 +9,7 @@ const contentSchema = new mongoose.Schema(
     },
     contentDescription: {
       type: String,
-      enum: ["text", "video", "image", "audio"],
+      enum: ["text", "video", "image", "audio", "document"],
       required: [true, "Content type is required!"],
     },
     createdBy: {

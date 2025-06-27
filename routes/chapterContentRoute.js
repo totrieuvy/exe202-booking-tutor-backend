@@ -83,14 +83,18 @@ router.post(
  *             required:
  *               - chapterId
  *               - contentDescription
+ *               - createdBy
  *             properties:
  *               chapterId:
  *                 type: string
  *                 description: The ID of the chapter
  *               contentDescription:
  *                 type: string
- *                 enum: [text, video, image, audio]
+ *                 enum: ["text", "video", "image", "audio"]
  *                 description: The type of content
+ *               createdBy:
+ *                 type: string
+ *                 description: The ID of the creator
  *     responses:
  *       201:
  *         description: Content created successfully
@@ -104,7 +108,7 @@ router.post(
  *         description: Unauthorized
  */
 router.post(
-  "/",
+  "/contents",
   verifyToken,
   [
     body("chapterId").notEmpty().isMongoId().withMessage("Valid chapterId is required"),
@@ -112,6 +116,7 @@ router.post(
       .notEmpty()
       .isIn(["text", "video", "image", "audio"])
       .withMessage("Valid content type is required"),
+    body("createdBy").notEmpty().isMongoId().withMessage("Valid creator ID is required"),
   ],
   async (req, res, next) => {
     try {
@@ -121,7 +126,7 @@ router.post(
       }
       const content = await chapterContentService.createContent({
         ...req.body,
-        createdBy: req.userId,
+        createdBy: req.userId, // Ghi đè createdBy từ token nếu cần
       });
       res.status(201).json(content);
     } catch (error) {
