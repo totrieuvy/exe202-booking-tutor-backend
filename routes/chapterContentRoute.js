@@ -90,8 +90,7 @@ router.post(
  *                 description: The ID of the chapter
  *               contentDescription:
  *                 type: string
- *                 enum: ["text", "video", "image", "audio"]
- *                 description: The type of content
+ *                 description: The type of content (any string)
  *               createdBy:
  *                 type: string
  *                 description: The ID of the creator
@@ -112,10 +111,7 @@ router.post(
   verifyToken,
   [
     body("chapterId").notEmpty().isMongoId().withMessage("Valid chapterId is required"),
-    body("contentDescription")
-      .notEmpty()
-      .isIn(["text", "video", "image", "audio"])
-      .withMessage("Valid content type is required"),
+    body("contentDescription").notEmpty().withMessage("Content type is required"),
     body("createdBy").notEmpty().isMongoId().withMessage("Valid creator ID is required"),
   ],
   async (req, res, next) => {
@@ -126,7 +122,7 @@ router.post(
       }
       const content = await chapterContentService.createContent({
         ...req.body,
-        createdBy: req.userId, // Ghi đè createdBy từ token nếu cần
+        createdBy: req.userId,
       });
       res.status(201).json(content);
     } catch (error) {
