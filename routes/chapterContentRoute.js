@@ -209,7 +209,7 @@ router.get(
  *         description: Unauthorized
  */
 router.get(
-  "/contents/chapter/:chapterId",
+  "/chapter/:chapterId",
   [param("chapterId").isMongoId().withMessage("Valid chapterId is required")],
   async (req, res, next) => {
     try {
