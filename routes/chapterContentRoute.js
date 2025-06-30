@@ -162,7 +162,7 @@ router.post(
  *         description: Unauthorized
  */
 router.get(
-  "/chapters/course/:courseId",
+  "/course/:courseId",
   [param("courseId").isMongoId().withMessage("Valid courseId is required")],
   async (req, res, next) => {
     try {
