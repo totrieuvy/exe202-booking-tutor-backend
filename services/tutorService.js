@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const OrderDetail = require("../models/orderDetail");
+const Certification = require("../models/certification");
 const Course = require("../models/course");
 const Order = require("../models/order");
 const path = require("path");
@@ -102,6 +103,23 @@ class TutorService {
       isActive: course.isActive,
       createdAt: course.createdAt,
       updatedAt: course.updatedAt,
+    }));
+  }
+
+  // Get all certifications for a specific tutor
+  static async getTutorCertifications(tutorId) {
+    const certifications = await Certification.find({ createBy: tutorId }).lean();
+
+    return certifications.map((cert) => ({
+      certificationId: cert._id,
+      experience: cert.experience,
+      name: cert.name,
+      description: cert.description,
+      image: cert.image,
+      isChecked: cert.isChecked,
+      isCanTeach: cert.isCanTeach,
+      createdAt: cert.createdAt,
+      updatedAt: cert.updatedAt,
     }));
   }
 }

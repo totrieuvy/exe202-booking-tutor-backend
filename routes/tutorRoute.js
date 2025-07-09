@@ -271,4 +271,69 @@ router.get("/courses/:accountId", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/tutor/certifications:
+ *   get:
+ *     summary: Get all certifications for the logged-in tutor
+ *     tags: [Tutor]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of certifications for the tutor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   certificationId:
+ *                     type: string
+ *                     description: ID of the certification
+ *                   experience:
+ *                     type: number
+ *                     description: Years of experience
+ *                   name:
+ *                     type: string
+ *                     description: Name of the certification
+ *                   description:
+ *                     type: string
+ *                     description: Description of the certification
+ *                   image:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                     description: URLs of the certification images
+ *                   isChecked:
+ *                     type: boolean
+ *                     description: Whether the certification is verified
+ *                   isCanTeach:
+ *                     type: boolean
+ *                     description: Whether the tutor can teach based on this certification
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                     description: Creation date of the certification
+ *                   updatedAt:
+ *                     type: string
+ *                     format: date-time
+ *                     description: Last update date of the certification
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Access denied (not a Tutor)
+ *       500:
+ *         description: Server error
+ */
+router.get("/certifications", verifyToken, isTutor, async (req, res) => {
+  try {
+    const certifications = await TutorService.getTutorCertifications(req.userId);
+    res.json(certifications);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;
