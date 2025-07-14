@@ -42,7 +42,7 @@ const { body, param, query, validationResult } = require("express-validator");
  *         description: Unauthorized
  */
 router.post(
-  "/chapters",
+  "/",
   verifyToken,
   [
     body("title").notEmpty().withMessage("Chapter title is required"),
