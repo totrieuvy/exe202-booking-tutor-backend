@@ -290,6 +290,166 @@ router.get("/", async (req, res) => {
 
 /**
  * @swagger
+ * /api/courses/{courseId}:
+ *   put:
+ *     summary: Update an existing course
+ *     description: Updates a course for an authenticated user who is the course creator with a verified certification
+ *     tags: [Courses]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: courseId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the course to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Name of the course
+ *                 example: Advanced Cloud Computing
+ *               description:
+ *                 type: string
+ *                 description: Description of the course
+ *                 example: Dive deeper into cloud computing concepts
+ *               image:
+ *                 type: string
+ *                 description: URL of the course image
+ *                 example: https://example.com/updated-course.jpg
+ *               price:
+ *                 type: number
+ *                 description: Price of the course
+ *                 example: 149.99
+ *     responses:
+ *       200:
+ *         description: Course updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: Course updated successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     course:
+ *                       type: object
+ *                       properties:
+ *                         _id:
+ *                           type: string
+ *                         name:
+ *                           type: string
+ *                         description:
+ *                           type: string
+ *                         image:
+ *                           type: string
+ *                         price:
+ *                           type: number
+ *                         createdBy:
+ *                           type: string
+ *                         createdAt:
+ *                           type: string
+ *                           format: date-time
+ *       400:
+ *         description: Invalid input or duplicate course name
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 400
+ *                 message:
+ *                   type: string
+ *                   example: Course name must be unique
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 401
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized! Invalid token
+ *       403:
+ *         description: Forbidden (not course creator or no valid certification)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 403
+ *                 message:
+ *                   type: string
+ *                   example: You are not authorized to update this course
+ *       404:
+ *         description: Course not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 404
+ *                 message:
+ *                   type: string
+ *                   example: Course not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: integer
+ *                   example: 500
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ */
+router.put("/:courseId", verifyToken, async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const { name, description, image, price } = req.body;
+    const userId = req.userId;
+    const result = await courseService.updateCourse({
+      courseId,
+      name,
+      description,
+      image,
+      price,
+      userId,
+    });
+    res.status(result.status).json(result);
+  } catch (error) {
+    console.error("Error in update course route:", error);
+    res.status(500).json({ status: 500, message: "Internal server error" });
+  }
+});
+
+/**
+ * @swagger
  * /api/courses/account/{accountId}:
  *   get:
  *     summary: Get account details with certifications and courses

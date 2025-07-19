@@ -227,6 +227,93 @@ const courseService = {
       return { status: 500, message: "Internal server error" };
     }
   },
+
+  async updateCourse({ courseId, name, description, image, price, userId }) {
+    try {
+      // Validate inputs
+      if (!courseId || typeof courseId !== "string") {
+        return { status: 400, message: "Valid course ID is required" };
+      }
+      if (name && typeof name !== "string") {
+        return { status: 400, message: "Course name must be a string" };
+      }
+      if (description && typeof description !== "string") {
+        return { status: 400, message: "Description must be a string" };
+      }
+      if (image && (typeof image !== "string" || !image.startsWith("http"))) {
+        return { status: 400, message: "Image must be a valid URL starting with 'http'" };
+      }
+      if (price !== undefined && (typeof price !== "number" || price < 0)) {
+        return { status: 400, message: "Price must be a non-negative number" };
+      }
+      if (!userId || typeof userId !== "string") {
+        return { status: 400, message: "Valid user ID is required" };
+      }
+
+      // Verify account exists and is active
+      const account = await db.Account.findById(userId);
+      if (!account) {
+        return { status: 404, message: "Account not found" };
+      }
+      if (account.status !== "Active") {
+        return { status: 403, message: "Account must be active to update a course" };
+      }
+
+      // Check for valid certification
+      const validCertification = await db.Certification.findOne({
+        createBy: userId,
+        isChecked: true,
+        isCanTeach: true,
+      });
+      if (!validCertification) {
+        return {
+          status: 403,
+          message: "You need a verified certification (isChecked and isCanTeach) to update a course",
+        };
+      }
+
+      // Find the course
+      const course = await db.Course.findById(courseId);
+      if (!course) {
+        return { status: 404, message: "Course not found" };
+      }
+
+      // Check for duplicate course name
+      if (name && name !== course.name) {
+        const existingCourse = await db.Course.findOne({ name });
+        if (existingCourse) {
+          return { status: 400, message: "Course name must be unique" };
+        }
+      }
+
+      // Update course fields
+      if (name) course.name = name;
+      if (description) course.description = description;
+      if (image) course.image = image;
+      if (price !== undefined) course.price = price;
+
+      await course.save();
+
+      return {
+        status: 200,
+        message: "Course updated successfully",
+        data: {
+          course: {
+            _id: course._id,
+            name: course.name,
+            description: course.description,
+            image: course.image,
+            price: course.price,
+            createdBy: course.createdBy,
+            createdAt: course.createdAt,
+          },
+        },
+      };
+    } catch (error) {
+      console.error("Course update error:", error);
+      return { status: 500, message: "Internal server error" };
+    }
+  },
 };
 
 module.exports = courseService;
