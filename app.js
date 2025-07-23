@@ -18,7 +18,8 @@ const orderRoute = require("./routes/orderRoute");
 const profileRoute = require("./routes/profileRoute");
 const dashboardRoute = require("./routes/dashboardRoute");
 const tutorRoute = require("./routes/tutorRoute");
-const chapterContentRoute = require("./routes/chapterContentRoute");
+const chapterRoute = require("./routes/chapterRoute");
+const contentRoute = require("./routes/contentRoute");
 const forumRoute = require("./routes/forumRoute");
 const accountRoutes = require("./routes/accountRoutes");
 
@@ -48,8 +49,8 @@ app.use("/api/orders", orderRoute);
 app.use("/api/account", profileRoute);
 app.use("/api/dashboard", dashboardRoute);
 app.use("/api/tutor", tutorRoute);
-app.use("/api/chapters", chapterContentRoute);
-app.use("/api/contents", chapterContentRoute);
+app.use("/api/chapters", chapterRoute);
+app.use("/api/contents", contentRoute);
 app.use("/api/forum", forumRoute);
 app.use("/api/accounts", accountRoutes);
 
