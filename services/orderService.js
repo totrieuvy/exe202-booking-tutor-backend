@@ -67,7 +67,7 @@ const orderService = {
         vnp_OrderInfo: `Payment for course: ${course.name}`,
         vnp_OrderType: "250000", // Educational service
         vnp_Locale: "vn",
-        vnp_ReturnUrl: `http://localhost:3000?orderId=${order._id}`,
+        vnp_ReturnUrl: `https://tutor-booking-platform.vercel.app/payment-success?orderId=${order._id}`,
         vnp_IpAddr: req.ip || "127.0.0.1",
         vnp_CreateDate: dateFormat(new Date(), "yyyymmddHHMMss"), // Ensure correct format
       };
