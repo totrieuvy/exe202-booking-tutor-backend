@@ -34,26 +34,28 @@ class TutorService {
       })
       .lean();
 
-    return orderDetails.map((detail) => ({
-      orderDetailId: detail._id,
-      courseName: detail.course.name,
-      coursePrice: detail.course.price,
-      quantity: detail.quantity,
-      price: detail.price,
-      isFinishCourse: detail.isFinishCourse,
-      timeFinishCourse: detail.timeFinishCourse,
-      certificateOfCompletion: detail.certificateOfCompletion,
-      order: {
-        account: {
-          fullName: detail.order.account.fullName,
-          email: detail.order.account.email,
+    return orderDetails
+      .filter((detail) => detail.order && detail.order.account) // <--- THÊM BỘ LỌC NÀY
+      .map((detail) => ({
+        orderDetailId: detail._id,
+        courseName: detail.course.name,
+        coursePrice: detail.course.price,
+        quantity: detail.quantity,
+        price: detail.price,
+        isFinishCourse: detail.isFinishCourse,
+        timeFinishCourse: detail.timeFinishCourse,
+        certificateOfCompletion: detail.certificateOfCompletion,
+        order: {
+          account: {
+            fullName: detail.order.account.fullName,
+            email: detail.order.account.email,
+          },
+          totalAmount: detail.order.totalAmount,
+          status: detail.order.status,
         },
-        totalAmount: detail.order.totalAmount,
-        status: detail.order.status,
-      },
-      createdAt: detail.createdAt,
-      updatedAt: detail.updatedAt,
-    }));
+        createdAt: detail.createdAt,
+        updatedAt: detail.updatedAt,
+      }));
   }
 
   // Update orderDetail with completion details and image
